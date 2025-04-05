@@ -29,7 +29,18 @@ function getCountryByIP() {
         .then(response => response.json())
         .then(data => {
             const country = data.country;
-            // TODO inject country to form and call getCountryCode(country) function
+            const countrySelect = document.getElementById('country');
+            const countryCodeSelect = document.getElementById('countryCode');
+
+            // Set the country in the select field
+            Array.from(countrySelect.options).forEach(option => {
+                if (option.value === country) {
+                    option.selected = true;
+                }
+            });
+
+            // Fetch and set the country code
+            getCountryCode(country);
         })
         .catch(error => {
             console.error('Błąd pobierania danych z serwera GeoJS:', error);
@@ -40,25 +51,31 @@ function getCountryCode(countryName) {
     const apiUrl = `https://restcountries.com/v3.1/name/${countryName}?fullText=true`;
 
     fetch(apiUrl)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Błąd pobierania danych');
-        }
-        return response.json();
-    })
-    .then(data => {        
-        const countryCode = data[0].idd.root + data[0].idd.suffixes.join("")
-        // TODO inject countryCode to form
-    })
-    .catch(error => {
-        console.error('Wystąpił błąd:', error);
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Błąd pobierania danych');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const countryCode = data[0].idd.root + data[0].idd.suffixes.join("");
+            const countryCodeSelect = document.getElementById('countryCode');
+
+            // Set the country code in the select field
+            Array.from(countryCodeSelect.options).forEach(option => {
+                if (option.value === countryCode) {
+                    option.selected = true;
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Wystąpił błąd:', error);
+        });
 }
 
 
 (() => {
-    // nasłuchiwania na zdarzenie kliknięcia myszką
     document.addEventListener('click', handleClick);
-
     fetchAndFillCountries();
-})()
+    getCountryByIP(); // Automatically populate country and country code
+})();
